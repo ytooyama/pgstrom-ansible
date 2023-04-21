@@ -1,0 +1,134 @@
+---
+- name: Setup the PG-Strom to Red Hat Enterprise Linux 8
+  hosts: home
+  become: true
+  tasks:
+   - name: Set the Release
+     ansible.builtin.shell:
+      cmd: "subscription-manager release --set=8.7"
+     when:
+      - ansible_facts['distribution'] == "RedHat"
+      - ansible_facts['distribution_major_version'] == "8"
+
+   - name: Install the 'Development tools' package group.
+     ansible.builtin.dnf:
+      name: '@Development tools'
+      state: present
+
+   - name: Install the kernel, kernel-dev and headers.
+     ansible.builtin.dnf:
+      name:
+       - kernel-core >= 4.18.0-425
+       - kernel-devel >= 4.18.0-425
+       - kernel-headers >= 4.18.0-425
+      state: present
+
+   - name: Upgrade all packages
+     ansible.builtin.dnf:
+      name: "*"
+      state: latest
+
+   - name: Install the grubby.
+     ansible.builtin.dnf:
+      name:
+       - grubby
+      state: present
+
+   - name: Config the GRUB.
+     ansible.builtin.shell:
+      cmd: "grubby --update-kernel=ALL --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off'"
+
+   - name: Install the epel-release rpm from a remote repo
+     ansible.builtin.dnf:
+      name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm'
+      state: present
+      disable_gpg_check: true
+
+   - name: Enable the Codeready.
+     ansible.builtin.shell:
+      cmd: "subscription-manager repos --enable=codeready-builder-for-rhel-8-x86_64-rpms"
+     when:
+      - ansible_facts['distribution'] == "RedHat"
+      - ansible_facts['distribution_major_version'] == "8"
+
+   - name: Install the HeteroDB Software Distribution Center rpm from a remote repo.
+     ansible.builtin.dnf:
+      name: "https://heterodb.github.io/swdc/yum/rhel8-noarch/heterodb-swdc-1.2-1.el8.noarch.rpm"
+      state: present
+      disable_gpg_check: true
+
+   - name: Reboot a machine that might have lots of updates to apply
+     ansible.builtin.reboot:
+      reboot_timeout: 1800
+
+   - name: Install the CUDA 12.1 package repos rpm from a remote repo.
+     ansible.builtin.dnf:
+      name: "https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda-repo-rhel8-12-1-local-12.1.0_530.30.02-1.x86_64.rpm"
+      state: present
+      disable_gpg_check: true
+
+   - name: Install the CUDA Drivers.
+     ansible.builtin.shell:
+      cmd: "dnf -y module install nvidia-driver:latest-dkms"
+
+   - name: Install the CUDA 12.1.
+     ansible.builtin.dnf:
+      name:
+       - cuda
+      state: present
+      update_cache: true
+      disable_gpg_check: true
+
+   - name: Install the PostgreSQL package repos rpm from a remote repo.
+     ansible.builtin.dnf:
+      name: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+      state: present
+      disable_gpg_check: true
+
+   - name: Disable the PostgreSQL Module Packages.
+     ansible.builtin.shell:
+      cmd: "dnf -y module disable postgresql"
+
+   - name: Install the PGDG's PostgreSQL Packages and Extra.
+     ansible.builtin.dnf:
+      name:
+       - postgresql15-devel
+       - postgresql15-server
+       - postgresql-alternatives
+       - pg_strom-PG15
+      state: present
+      update_cache: true
+      disable_gpg_check: true
+
+   - name: Init DB
+     ansible.builtin.shell:
+      cmd: "/usr/pgsql-15/bin/postgresql-15-setup initdb"
+      chdir: /var/lib/pgsql/15/data/
+      creates: PG_VERSION
+
+   - name: Add include setting
+     ansible.builtin.blockinfile:
+      path: /var/lib/pgsql/15/data/postgresql.conf
+      block: |
+        include 'postgresql.custom.conf'
+      owner: postgres
+      group: postgres
+      mode: '0644'
+      state: present
+
+   - name: Copy the Postgres setting file
+     ansible.builtin.copy:
+      src: src/postgresql.custom.conf
+      dest: /var/lib/pgsql/15/data/postgresql.custom.conf
+      owner: postgres
+      group: postgres
+      mode: '0644'
+
+   - name: Service Restart
+     ansible.builtin.service:
+      name: postgresql-15
+      state: restarted
+
+   - name: Print message
+     ansible.builtin.debug:
+      msg: "Setup Successful."
