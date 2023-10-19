@@ -11,9 +11,6 @@
 ```shell
 #RHEL and RHEL clones
 %wheel  ALL=(ALL)       NOPASSWD: ALL 
-
-#Debian and Ubuntu
-%sudo  ALL=(ALL)       NOPASSWD: ALL 
 ```
 
 - And...
