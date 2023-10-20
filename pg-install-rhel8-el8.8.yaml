@@ -1,11 +1,11 @@
 ---
-- name: Setup the PG-Strom to Red Hat Enterprise Linux 8
+- name: Setup the PG-Strom to Red Hat Enterprise Linux 8.8
   hosts: home
   become: true
   tasks:
    - name: Set the Release
      ansible.builtin.shell:
-      cmd: "subscription-manager release --set=8.6"
+      cmd: "subscription-manager release --set=8.8"
      when:
       - ansible_facts['distribution'] == "RedHat"
       - ansible_facts['distribution_major_version'] == "8"
@@ -18,10 +18,15 @@
    - name: Install the kernel, kernel-dev and headers.
      ansible.builtin.dnf:
       name:
-       - kernel-core-4.18.0-372.32.1.el8_6.x86_64
-       - kernel-devel-4.18.0-372.32.1.el8_6.x86_64
-       - kernel-headers-4.18.0-372.32.1.el8_6.x86_64
+       - kernel-core >= 4.18.0-477
+       - kernel-devel >= 4.18.0-477
+       - kernel-headers >= 4.18.0-477
       state: present
+
+   - name: Upgrade all packages
+     ansible.builtin.dnf:
+      name: "*"
+      state: latest
 
    - name: Install the grubby.
      ansible.builtin.dnf:
@@ -52,9 +57,9 @@
       state: present
       disable_gpg_check: true
 
-   - name: Install the CUDA 12.0.1 package repos rpm from a remote repo.
+   - name: Install the CUDA 12.2.2 package repos rpm from a remote repo.
      ansible.builtin.dnf:
-      name: "https://developer.download.nvidia.com/compute/cuda/12.0.1/local_installers/cuda-repo-rhel8-12-0-local-12.0.1_525.85.12-1.x86_64.rpm"
+      name: "https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda-repo-rhel8-12-2-local-12.2.2_535.104.05-1.x86_64.rpm"
       state: present
       disable_gpg_check: true
 
@@ -62,7 +67,7 @@
      ansible.builtin.shell:
       cmd: "dnf -y module install nvidia-driver:latest-dkms"
 
-   - name: Install the CUDA 12.0.1.
+   - name: Install the CUDA.
      ansible.builtin.dnf:
       name:
        - cuda
@@ -72,7 +77,7 @@
 
    - name: Reboot a machine that might have lots of updates to apply
      ansible.builtin.reboot:
-      reboot_timeout: 180
+      reboot_timeout: 1800
 
    - name: Install the PostgreSQL package repos rpm from a remote repo.
      ansible.builtin.dnf:

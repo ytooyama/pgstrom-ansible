@@ -1,6 +1,6 @@
 ---
 - name: Setup the PG-Strom to Red Hat Enterprise Linux 8.8
-  hosts: bakusokutest
+  hosts: home
   become: true
   tasks:
    - name: Set the Release
