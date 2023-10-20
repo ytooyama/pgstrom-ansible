@@ -49,10 +49,6 @@
       state: present
       disable_gpg_check: true
 
-   - name: Reboot a machine that might have lots of updates to apply
-     ansible.builtin.reboot:
-      reboot_timeout: 180
-
    - name: Install the CUDA 12.1 package repos rpm from a remote repo.
      ansible.builtin.dnf:
       name: "https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda-repo-rhel8-12-1-local-12.1.0_530.30.02-1.x86_64.rpm"
@@ -70,6 +66,10 @@
       state: present
       update_cache: true
       disable_gpg_check: true
+
+   - name: Reboot a machine that might have lots of updates to apply
+     ansible.builtin.reboot:
+      reboot_timeout: 180
 
    - name: Install the PostgreSQL package repos rpm from a remote repo.
      ansible.builtin.dnf:
