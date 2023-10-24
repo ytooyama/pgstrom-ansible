@@ -5,7 +5,7 @@
   tasks:
    - name: Set the Release
      ansible.builtin.shell:
-      cmd: "subscription-manager release --set=8.7"
+      cmd: "subscription-manager release --set=8.8"
      when:
       - ansible_facts['distribution'] == "RedHat"
       - ansible_facts['distribution_major_version'] == "8"
