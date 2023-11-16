@@ -57,9 +57,9 @@
       state: present
       disable_gpg_check: true
 
-   - name: Install the CUDA 12.0.0 package repos rpm from a remote repo.
+   - name: Install the CUDA 12.2.2 package repos rpm from a remote repo.
      ansible.builtin.dnf:
-      name: "https://developer.download.nvidia.com/compute/cuda/12.0.0/local_installers/cuda-repo-rhel8-12-0-local-12.0.0_525.60.13-1.x86_64.rpm"
+      name: "https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda-repo-rhel8-12-2-local-12.2.2_535.104.05-1.x86_64.rpm"
       state: present
       disable_gpg_check: true
 
@@ -67,7 +67,7 @@
      ansible.builtin.shell:
       cmd: "dnf -y module install nvidia-driver:latest-dkms"
 
-   - name: Install the CUDA 12.0.0.
+   - name: Install the CUDA 12.2.2.
      ansible.builtin.dnf:
       name:
        - cuda
