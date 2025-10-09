@@ -25,6 +25,5 @@ You can set up with the following configuration.
 
 | OSVer | KernelVer | CUDAVer |
 | --- | --- | --- |
-| Red Hat Enterprise Linux 8.6 | >= 4.18.0-372.9.1 | 12.0.1 |
-| Red Hat Enterprise Linux 8.8 | >= 4.18.0-477.10.1 | 12.2.2 |
-| Rocky Linux 8.8 | >= 4.18.0-477 | 12.2.2 |
+| Rocky Linux 9.6 | >= 5.14.0-503 | 12.9.1 |
+| AlmaLinux 9.6 | >= 5.14.0-503 | 12.9.1 |
