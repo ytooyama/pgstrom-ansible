@@ -20,7 +20,7 @@ ansible-playbook playbook.yaml -i hosts.ini
 ```
 
 ## Support Versions
-Playbookを使うと、次の構成でセットアップできます。
+Using Playbook, you can set up the following configuration.
 
 ### Stable
  
