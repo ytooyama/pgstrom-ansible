@@ -3,15 +3,19 @@
   hosts: home
   become: true
   tasks:
-   - name: Install the 'Development tools' package group.
-     ansible.builtin.dnf:
-      name: '@Development tools'
-      state: present
-
    - name: Upgrade all packages
      ansible.builtin.dnf:
       name: "*"
       state: latest
+
+   - name: Reboot a machine that might have lots of updates to apply
+     ansible.builtin.reboot:
+      reboot_timeout: 180
+   
+   - name: Install the 'Development tools' package group.
+     ansible.builtin.dnf:
+      name: '@Development tools'
+      state: present
 
    - name: Install the perl-IPC-Run package from the powertools repo
      ansible.builtin.dnf:
@@ -57,9 +61,9 @@
      ansible.builtin.shell:
       cmd: "dnf -y module install nvidia-driver:open-dkms"
 
-   - name: dkms autoinstall
-     ansible.builtin.shell:
-      cmd: "dkms autoinstall"
+   - name: Reboot a machine that might have lots of updates to apply
+     ansible.builtin.reboot:
+      reboot_timeout: 180
 
    - name: Install the CUDA.
      ansible.builtin.dnf:
@@ -75,10 +79,6 @@
    - name: Check CUDA installation progress
      ansible.builtin.debug:
       var: cuda_install
-
-   - name: Reboot a machine that might have lots of updates to apply
-     ansible.builtin.reboot:
-      reboot_timeout: 180
 
    - name: Install the PostgreSQL package repos rpm from a remote repo.
      ansible.builtin.dnf:
