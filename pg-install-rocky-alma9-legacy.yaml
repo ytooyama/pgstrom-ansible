@@ -26,6 +26,7 @@
    - name: Install the kernel, kernel-dev and headers.
      ansible.builtin.dnf:
       name:
+       - kernel >= 5.14.0-503
        - kernel-core >= 5.14.0-503
        - kernel-devel >= 5.14.0-503
        - kernel-headers >= 5.14.0-503

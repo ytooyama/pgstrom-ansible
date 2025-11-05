@@ -19,9 +19,19 @@
 ansible-playbook playbook.yaml -i hosts.ini
 ```
 
-## Version
+## Support Versions
+Playbookを使うと、次の構成でセットアップできます。
 
-You can set up with the following configuration.
+### Stable
+ 
+| OSVer | KernelVer | CUDAVer |
+| --- | --- | --- |
+| Rocky Linux 8.10 | >= 4.18.0-553 | 13.0.2 |
+| Rocky Linux 9.6 | >= 5.14.0-570.17.1 | 13.0.2 |
+| AlmaLinux 8.10 | >= 4.18.0-553 | 13.0.2 |
+| AlmaLinux 9.6 | >= 5.14.0-570.17.1 | 13.0.2 |
+
+### Legacy
 
 | OSVer | KernelVer | CUDAVer |
 | --- | --- | --- |

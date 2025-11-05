@@ -1,0 +1,231 @@
+---
+- name: Setup PG-Strom for Rocky Linux and AlmaLinux version 8,9
+  hosts: home
+  become: true
+  tasks:
+   - name: Detect OS major version
+     ansible.builtin.shell:
+      cmd: "cut -d: -f5 /etc/system-release-cpe | cut -d. -f1"
+     register: el_version
+     changed_when: false
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+
+   - name: Set OS version facts
+     ansible.builtin.set_fact:
+      os_major_version: "{{ el_version.stdout }}"
+      is_el8: "{{ el_version.stdout == '8' }}"
+      is_el9: "{{ el_version.stdout == '9' }}"
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+
+   - name: Display detected OS version
+     ansible.builtin.debug:
+      msg: "Detected {{ ansible_distribution }} {{ os_major_version }}"
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+
+   - name: Upgrade all packages
+     ansible.builtin.dnf:
+      name: "*"
+      state: latest
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Reboot after package upgrade
+     ansible.builtin.reboot:
+      reboot_timeout: 180
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]     
+     
+   - name: Install the 'Development tools' package group
+     ansible.builtin.dnf:
+      name: '@Development tools'
+      state: present
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+
+   - name: Enable CRB repository (EL8)
+     ansible.builtin.shell:
+      cmd: "dnf config-manager --set-enabled powertools"
+     when: 
+      - ansible_distribution in ["Rocky", "AlmaLinux"]
+      - is_el8 | bool
+
+   - name: Enable CRB repository (EL9)
+     ansible.builtin.shell:
+      cmd: "dnf config-manager --set-enabled crb"
+     when: 
+      - ansible_distribution in ["Rocky", "AlmaLinux"]
+      - is_el9 | bool
+     
+   - name: Install perl-IPC-Run package from CRB repo
+     ansible.builtin.dnf:
+      name: perl-IPC-Run
+      enablerepo: crb
+      state: present
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+
+   - name: Install kernel packages (EL8)
+     ansible.builtin.dnf:
+      name:
+       - kernel >= 4.18.0-553
+       - kernel-core >= 4.18.0-553
+       - kernel-devel >= 4.18.0-553
+       - kernel-headers >= 4.18.0-553
+      state: present
+     when: 
+      - ansible_distribution in ["Rocky", "AlmaLinux"]
+      - is_el8 | bool
+
+   - name: Install kernel packages (EL9)
+     ansible.builtin.dnf:
+      name:
+       - kernel >= 5.14.0-570.17.1
+       - kernel-core >= 5.14.0-570.17.1
+       - kernel-devel >= 5.14.0-570.17.1
+       - kernel-headers >= 5.14.0-570.17.1
+      state: present
+     when: 
+      - ansible_distribution in ["Rocky", "AlmaLinux"]
+      - is_el9 | bool
+     
+   - name: Install grubby
+     ansible.builtin.dnf:
+      name: grubby
+      state: present
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Configure GRUB for NVIDIA
+     ansible.builtin.shell:
+      cmd: "grubby --update-kernel=ALL --args='nouveau.modeset=0 rd.driver.blacklist=nouveau video=vesa:off'"
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Install EPEL release
+     ansible.builtin.dnf:
+      name: epel-release
+      state: present
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Install HeteroDB Software Distribution Center rpm
+     ansible.builtin.dnf:
+      name: "https://heterodb.github.io/swdc/yum/rhel{{ os_major_version }}-noarch/heterodb-swdc-1.3-1.el{{ os_major_version }}.noarch.rpm"
+      state: present
+      disable_gpg_check: true
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Enable CUDA repository
+     ansible.builtin.shell:
+      cmd: "dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel{{ os_major_version }}/x86_64/cuda-rhel{{ os_major_version }}.repo"
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Install NVIDIA drivers (EL8/EL9)
+     ansible.builtin.shell:
+      cmd: "dnf -y module install nvidia-driver:open-dkms"
+     when: 
+      - ansible_distribution in ["Rocky", "AlmaLinux"]
+      - (is_el8 | bool) or (is_el9 | bool)
+
+   - name: Install CUDA toolkit
+     ansible.builtin.dnf:
+      name: cuda-toolkit-13-0
+      state: present
+      update_cache: true
+      disable_gpg_check: true
+     async: 3600
+     poll: 30
+     register: cuda_install 
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Check CUDA installation progress
+     ansible.builtin.debug:
+      var: cuda_install
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+
+   - name: Install PostgreSQL package repository
+     ansible.builtin.dnf:
+      name: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ os_major_version }}-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+      state: present
+      disable_gpg_check: true
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Disable PostgreSQL module packages
+     ansible.builtin.shell:
+      cmd: "dnf -y module disable postgresql"
+     when: 
+      - ansible_distribution in ["Rocky", "AlmaLinux"]
+      - (is_el8 | bool) or (is_el9 | bool)      
+     
+   - name: Install Arrow/Parquet dependencies
+     ansible.builtin.dnf:
+      name:
+       - utf8proc-devel
+       - gobject-introspection-devel
+      state: present
+      enablerepo: crb
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Install Apache Arrow repository
+     ansible.builtin.dnf:
+      name: "https://packages.apache.org/artifactory/arrow/almalinux/{{ os_major_version }}/apache-arrow-release-latest.rpm"
+      state: present
+      disable_gpg_check: true
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Install arrow-devel and parquet-devel
+     ansible.builtin.dnf:
+      name:
+       - arrow-devel
+       - parquet-devel
+      state: present
+      update_cache: true
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Install PostgreSQL 16 and PG-Strom packages 
+     ansible.builtin.dnf:
+      name:
+       - postgresql16-devel
+       - postgresql16-server
+       - pg_strom-PG16
+      state: present
+      update_cache: true
+      disable_gpg_check: true
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Initialize PostgreSQL database
+     ansible.builtin.shell:
+      cmd: "/usr/pgsql-16/bin/postgresql-16-setup initdb"
+      chdir: /var/lib/pgsql/16/data/
+      creates: PG_VERSION
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Add include setting to postgresql.conf
+     ansible.builtin.blockinfile:
+      path: /var/lib/pgsql/16/data/postgresql.conf
+      block: |
+        include 'postgresql.custom.conf'
+      owner: postgres
+      group: postgres
+      mode: '0644'
+      state: present
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Copy custom PostgreSQL configuration
+     ansible.builtin.copy:
+      src: src/postgresql.custom.conf
+      dest: /var/lib/pgsql/16/data/postgresql.custom.conf
+      owner: postgres
+      group: postgres
+      mode: '0644'
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+  
+   - name: Reboot after installation
+     ansible.builtin.reboot:
+      reboot_timeout: 180
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]     
+     
+   - name: Start and enable PostgreSQL service
+     ansible.builtin.service:
+      name: postgresql-16
+      state: restarted
+      enabled: true
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
+     
+   - name: Print success message
+     ansible.builtin.debug:
+      msg: "Setup successful for {{ ansible_distribution }} {{ os_major_version }}"
+     when: ansible_distribution in ["Rocky", "AlmaLinux"]
