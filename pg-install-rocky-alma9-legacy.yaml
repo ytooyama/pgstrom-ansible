@@ -152,14 +152,14 @@
    - name: Copy the Postgres setting file
      ansible.builtin.copy:
       src: src/postgresql.custom.conf
-      dest: /var/lib/pgsql/16/data/postgresql.custom.conf
+      dest: /var/lib/pgsql/17/data/postgresql.custom.conf
       owner: postgres
       group: postgres
       mode: '0644'
 
    - name: Service Restart
      ansible.builtin.service:
-      name: postgresql-16
+      name: postgresql-17
       state: restarted
 
    - name: Print message
