@@ -16,11 +16,11 @@
 - And...
 
 ```shell
-ansible-playbook playbook.yaml -i hosts.ini
+ansible-playbook playbook.yaml -i hosts.ini -l home
 ```
 
 ## Support Versions
-Using Playbook, you can set up the following configuration.
+Playbookを使うと、次の構成でセットアップできます。
 
 ### Stable
  
@@ -28,12 +28,13 @@ Using Playbook, you can set up the following configuration.
 | --- | --- | --- |
 | Rocky Linux 8.10 | >= 4.18.0-553 | 13.0.2 |
 | Rocky Linux 9.6 | >= 5.14.0-570.17.1 | 13.0.2 |
+| Rocky Linux 10.0 | >= 6.12.0-55.12.1 | 13.0.2 |
 | AlmaLinux 8.10 | >= 4.18.0-553 | 13.0.2 |
-| AlmaLinux 9.6 | >= 5.14.0-570.17.1 | 13.0.2 |
+| AlmaLinux 9.6 | >= 6.12.0-55.12.1 | 13.0.2 |
 
 ### Legacy
 
 | OSVer | KernelVer | CUDAVer |
 | --- | --- | --- |
-| Rocky Linux 9.6 | >= 5.14.0-503 | 12.9.1 |
-| AlmaLinux 9.6 | >= 5.14.0-503 | 12.9.1 |
+| Rocky Linux 9.6 | >= 5.14.0-503 | 13.0.2 |
+| AlmaLinux 9.6 | >= 5.14.0-503 | 13.0.2 |

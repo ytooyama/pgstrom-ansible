@@ -10,7 +10,7 @@
 
    - name: Reboot a machine that might have lots of updates to apply
      ansible.builtin.reboot:
-      reboot_timeout: 180
+      reboot_timeout: 240
    
    - name: Install the 'Development tools' package group.
      ansible.builtin.dnf:
@@ -64,12 +64,12 @@
 
    - name: Reboot a machine that might have lots of updates to apply
      ansible.builtin.reboot:
-      reboot_timeout: 180
+      reboot_timeout: 240
 
    - name: Install the CUDA.
      ansible.builtin.dnf:
       name:
-       - cuda-toolkit-12-9
+       - cuda-toolkit-13-0
       state: present
       update_cache: true
       disable_gpg_check: true
@@ -126,22 +126,22 @@
    - name: Install the PGDG's PostgreSQL Packages and Extra.
      ansible.builtin.dnf:
       name:
-       - postgresql16-devel
-       - postgresql16-server
-       - pg_strom-PG16
+       - postgresql17-devel
+       - postgresql17-server
+       - pg_strom-PG17
       state: present
       update_cache: true
       disable_gpg_check: true
 
    - name: Init DB
      ansible.builtin.shell:
-      cmd: "/usr/pgsql-16/bin/postgresql-16-setup initdb"
-      chdir: /var/lib/pgsql/16/data/
+      cmd: "/usr/pgsql-17/bin/postgresql-17-setup initdb"
+      chdir: /var/lib/pgsql/17/data/
       creates: PG_VERSION
 
    - name: Add include setting
      ansible.builtin.blockinfile:
-      path: /var/lib/pgsql/16/data/postgresql.conf
+      path: /var/lib/pgsql/17/data/postgresql.conf
       block: |
         include 'postgresql.custom.conf'
       owner: postgres
