@@ -23,6 +23,7 @@ ansible-playbook playbook.yaml -i hosts.ini -l home
 You can set up with the following configuration.
 
 ### Stable
+This Playbook supports EL8 to 10.
  
 | OSVer | KernelVer | CUDAVer |
 | --- | --- | --- |
@@ -30,9 +31,11 @@ You can set up with the following configuration.
 | Rocky Linux 9.6 | >= 5.14.0-570.17.1 | 13.0.2 |
 | Rocky Linux 10.0 | >= 6.12.0-55.12.1 | 13.0.2 |
 | AlmaLinux 8.10 | >= 4.18.0-553 | 13.0.2 |
-| AlmaLinux 9.6 | >= 6.12.0-55.12.1 | 13.0.2 |
+| AlmaLinux 9.6 | >= 5.14.0-570.17.1 | 13.0.2 |
+| AlmaLinux 10.0 | >= 6.12.0-55.12.1 | 13.0.2 |
 
 ### Legacy
+Legacy Playbook only supports EL9.
 
 | OSVer | KernelVer | CUDAVer |
 | --- | --- | --- |
