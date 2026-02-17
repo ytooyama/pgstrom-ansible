@@ -1,0 +1,35 @@
+General information
+----------
+こちらをご覧いただき、対応するCUDAおよびOFEDドライバーをインストールしてください。
+Please take a look here and install the corresponding CUDA and OFED drivers.
+
+CUDA Releases
+https://developer.nvidia.com/cuda-toolkit-archive
+Latest Releases
+https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+
+DOCA-OFED Releases
+https://developer.nvidia.com/doca-archive
+DOCA-OFED Latest Releases
+https://docs.nvidia.com/doca/sdk/index.html
+
+
+GDS patch
+----------
+RockyとAlmaは次のpatchを適用してインストールしないとGDSが使えないので注意。行数はDOCAのバージョンによって変わる。
+Please note that Rocky and Alma cannot use GDS unless you apply and install the following patch. The number of lines varies depending on the version of DOCA.
+
+
+```diff
+--- doca-kernel-support.org	2025-10-31 10:47:19.009660599 +0000
++++ doca-kernel-support	2025-10-31 10:47:52.804187965 +0000
+@@ -416,7 +416,7 @@
+ 	options="$options --with-iser-mod"
+ 	options="$options --with-isert-mod"
+ 	options="$options --with-nfsrdma-mod"
+-	case "$DISTRO" in rhel:* | kylin:* | ubuntu:18.04 | ubuntu:2[024].04)
++	case "$DISTRO" in rhel:* | almalinux:* | rocky:* | kylin:* | ubuntu:18.04 | ubuntu:2[024].04)
+ 		verbose "Kernel build option GDS enabled ($DISTRO)."
+ 		options="$options --with-gds"
+ 		;;
+```
