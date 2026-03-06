@@ -31,5 +31,5 @@ You can set up with the following configuration.
 | Rocky Linux 10.1 | >= 6.12.0-124 | 13.1.1 |
 | AlmaLinux 8.10 | >= 4.18.0-553 | 13.1.1 |
 | AlmaLinux 9.7 | >= 5.14.0-611.5 | 13.1.1 |
-| Rocky Linux 10.1 | >= 6.12.0-124 | 13.1.1 |
+| AlmaLinux 10.1 | >= 6.12.0-124 | 13.1.1 |
 
