@@ -5,9 +5,9 @@
 
   vars:
     # dnf releasever
-    el8_releasever: "8.10"
-    el9_releasever: "9.7"
-    el10_releasever: "10.1"
+    el8_releasever: "8"
+    el9_releasever: "9"
+    el10_releasever: "10"
 
     # CRB repo name differs on EL8 (powertools) vs EL9/10 (crb)
     el8_crb_repo: "powertools"
